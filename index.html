@@ -140,7 +140,6 @@
                 <option value="link">Important Link</option>
             </select>
             <input type="text" id="name-in" placeholder="Name/Subject">
-            <input type="text" id="year-in" placeholder="Description/Year">
             <input type="text" id="link-in" placeholder="URL Link">
             <button class="admin-btn" onclick="addItem()" style="background:var(--accent); color:white;">Save & Publish</button>
             <button class="admin-btn" onclick="toggleDeleteMode()" style="background:#64748b; color:white;">Edit/Delete Mode</button>
@@ -244,19 +243,18 @@
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyDNpwzfVH0vJkXw8mgQJkXw8mgQ",
-        authDomain: "studenthub-pro-5fb5c.firebaseapp.com",
-        databaseURL: "https://studenthub-pro-5fb5c-default-rtdb.firebaseio.com",
-        projectId: "studenthub-pro-5fb5c",
-        storageBucket: "studenthub-pro-5fb5c.appspot.com",
-        messagingSenderId: "585155257720",
-        appId: "1:585155257720:web:1263ad"
+      apiKey: "AIzaSyDNpwzfVHOvJkXw8mgG8jDl9fwEab9_Wfc",
+      authDomain: "studenthub-pro-5fb5c.firebaseapp.com",
+      databaseURL: "https://studenthub-pro-5fb5c-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "studenthub-pro-5fb5c",
+      storageBucket: "studenthub-pro-5fb5c.firebasestorage.app",
+      messagingSenderId: "585155257720",
+      appId: "1:585155257720:web:1263ada2806479e96e148d"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Overwriting your local functions to use Cloud
     window.addItem = () => {
         const item = { 
             type: document.getElementById('item-type').value, 
@@ -275,7 +273,6 @@
         if(confirm("Delete this for everyone?")) remove(ref(db, 'resources/' + id));
     }
 
-    // Sync data globally
     onValue(ref(db, 'resources/'), (snapshot) => {
         const grids = { note: 'notes-grid', pyq: 'pyq-grid', syllabus: 'syllabus-grid', link: 'links-grid' };
         Object.values(grids).forEach(id => document.getElementById(id).innerHTML = "");
@@ -287,18 +284,21 @@
             card.className = 'card';
             const tagClass = data.type === 'link' ? 'tag-link' : '';
             card.innerHTML = `
-                <div class="delete-btn" onclick="deleteItem('${id}')" style="${isAdminMode?'display:block':''}">Delete</div>
+                <div class="delete-btn" id="del-${id}" onclick="deleteItem('${id}')">Delete</div>
                 <span class="tag ${tagClass}">${data.type.toUpperCase()}</span>
                 <h3>${data.name}</h3>
                 <button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`;
             if(document.getElementById(grids[data.type])) document.getElementById(grids[data.type]).prepend(card);
+            
+            // Re-apply delete visibility if admin mode is on
+            if(window.isAdminMode) document.getElementById(`del-${id}`).style.display = 'block';
         });
     });
 </script>
 
 <script>
-    // ALL YOUR ORIGINAL LOGIC RETAINED
     let isAdminMode = false, msBuffer = "", timerInterval, timerRunning = false, timeLeft = 1500, secretTapCount = 0;
+    window.isAdminMode = false;
 
     const themes = {
         midnight: { primary: '#818cf8', bg: '#0f172a', card: '#1e293b', side: '#020617', border: '#334155', text: '#f1f5f9' },
@@ -438,7 +438,7 @@
     function unlock() { if(document.getElementById('admin-p').value === "12345") { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('admin-controls').classList.remove('hidden'); } else alert("Wrong Password"); }
 
     function openLink(name, link) { logHistory('Link', name); window.open(link, '_blank'); }
-    function toggleDeleteMode() { isAdminMode = !isAdminMode; document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = isAdminMode ? 'block' : 'none'); }
+    function toggleDeleteMode() { window.isAdminMode = !window.isAdminMode; document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = window.isAdminMode ? 'block' : 'none'); }
 
     window.onload = () => {
         const st = localStorage.getItem('hub_theme'); if(st) setTheme(st);
