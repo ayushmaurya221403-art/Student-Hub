@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,6 +84,11 @@
         .calc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
         .calc-grid button { padding: 12px 5px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; cursor: pointer; }
         .calc-grid button:hover { background: var(--primary); }
+
+        /* New Year/Subject Styles */
+        .year-selector, .subject-selector { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .year-btn { padding: 8px 15px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: white; font-size: 12px; }
+        .year-btn.active { background: var(--primary); border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -130,16 +135,34 @@
             <button class="admin-btn" onclick="unlock()" style="background:var(--pink-accent); color:white;">Unlock</button>
         </div>
         <div id="admin-controls" class="hidden">
-            <label style="color:white; font-size:10px;">Set Exam Date:</label>
-            <input type="datetime-local" id="exam-date-in" onchange="updateExamDate()">
-            <hr style="border:0; border-top:1px solid #374151; margin:10px 0;">
             <select id="item-type">
                 <option value="note">Study Note</option>
                 <option value="pyq">PYQ Paper</option>
                 <option value="syllabus">Syllabus</option>
                 <option value="link">Important Link</option>
             </select>
-            <input type="text" id="name-in" placeholder="Name/Subject">
+
+            <select id="item-year">
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+            </select>
+
+            <select id="item-subject">
+                <option value="engg. Chemistry">engg. Chemistry</option>
+                <option value="engg. electronics">engg. electronics</option>
+                <option value="engg. Math-1">engg. Math-1</option>
+                <option value="engg. Mechanic">engg. Mechanic</option>
+                <option value="engg. Soft skill">engg. Soft skill</option>
+                <option value="engg.Math-2">engg.Math-2</option>
+                <option value="engg.Physics">engg.Physics</option>
+                <option value="engg.electrical">engg.electrical</option>
+                <option value="engg.pps">engg.pps</option>
+                <option value="engg.evs">engg.evs</option>
+            </select>
+
+            <input type="text" id="name-in" placeholder="Topic Name (e.g. Unit 1)">
             <input type="text" id="link-in" placeholder="URL Link">
             <button class="admin-btn" onclick="addItem()" style="background:var(--accent); color:white;">Save & Publish</button>
             <button class="admin-btn" onclick="toggleDeleteMode()" style="background:#64748b; color:white;">Edit/Delete Mode</button>
@@ -157,13 +180,13 @@
 
         <div class="widget-row">
             <div class="countdown-container">
-                <div style="font-size:10px; font-weight:bold; margin-bottom:5px; color:var(--text-muted);">EXAM COUNTDOWN</div>
+                <div style="font-size:10px; font-weight:bold; margin-bottom:5px; color:var(--text-muted);">EXAM COUNTDOWN <span style="cursor:pointer;" onclick="setExamPrompt()">⚙️</span></div>
                 <div class="cd-box"><span class="cd-num" id="days">00</span><span class="cd-label">Days</span></div>
                 <div class="cd-box"><span class="cd-num" id="hours">00</span><span class="cd-label">Hrs</span></div>
                 <div class="cd-box"><span class="cd-num" id="mins">00</span><span class="cd-label">Mins</span></div>
             </div>
             <div class="timer-container">
-                <div style="font-size:10px; font-weight:bold; margin-bottom:5px; color:var(--text-muted);">STUDY TIMER</div>
+                <div style="font-size:10px; font-weight:bold; margin-bottom:5px; color:var(--text-muted);">STUDY TIMER <span style="cursor:pointer;" onclick="setTimerPrompt()">⚙️</span></div>
                 <div class="tm-box"><span class="tm-num" id="timer-display">25:00</span></div>
                 <div><button class="timer-btn" onclick="toggleTimer()" id="timer-control">Start</button><button class="timer-btn" onclick="resetTimer()" style="background:#4b5563;">Reset</button></div>
             </div>
@@ -200,14 +223,32 @@
         </div>
     </section>
 
-    <section id="notes-page" class="hidden"><div class="header-row"><h1>Study Notes</h1><input type="text" class="search-input" onkeyup="filterCards('notes-grid', this)" placeholder="Search..."></div><div class="grid" id="notes-grid"></div></section>
-    <section id="pyq-page" class="hidden"><div class="header-row"><h1>PYQ Papers</h1><input type="text" class="search-input" onkeyup="filterCards('pyq-grid', this)" placeholder="Search..."></div><div class="grid" id="pyq-grid"></div></section>
-    <section id="syllabus-page" class="hidden"><div class="header-row"><h1>Syllabus</h1><input type="text" class="search-input" onkeyup="filterCards('syllabus-grid', this)" placeholder="Search..."></div><div class="grid" id="syllabus-grid"></div></section>
+    <section id="notes-page" class="hidden">
+        <h1>Study Notes</h1>
+        <div class="year-selector" id="notes-years"></div>
+        <div class="subject-selector hidden" id="notes-subjects"></div>
+        <div class="grid" id="notes-grid"></div>
+    </section>
+
+    <section id="pyq-page" class="hidden">
+        <h1>PYQ Papers</h1>
+        <div class="year-selector" id="pyq-years"></div>
+        <div class="subject-selector hidden" id="pyq-subjects"></div>
+        <div class="grid" id="pyq-grid"></div>
+    </section>
+
+    <section id="syllabus-page" class="hidden">
+        <h1>Syllabus</h1>
+        <div class="year-selector" id="syllabus-years"></div>
+        <div class="subject-selector hidden" id="syllabus-subjects"></div>
+        <div class="grid" id="syllabus-grid"></div>
+    </section>
+
     <section id="links-page" class="hidden"><div class="header-row"><h1>Important Links</h1><input type="text" class="search-input" onkeyup="filterCards('links-grid', this)" placeholder="Search..."></div><div class="grid" id="links-grid"></div></section>
     
     <section id="ai-page" class="hidden"><h1>AI Solver</h1><div class="card"><textarea id="ai-q" style="width:100%; height:150px; padding:15px; border-radius:10px; border:1px solid var(--border); background:rgba(0,0,0,0.2); color:white;" placeholder="Ask me..."></textarea><button class="btn-view" onclick="aiSolve()">Solve</button><div id="ai-res" style="margin-top:20px; padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; display:none; border:1px solid var(--border);"></div></div></section>
     <section id="calc-page" class="hidden">
-        <h1>Advanced Scientific Calculator</h1>
+        <h1>Calculators</h1>
         <div class="grid">
             <div class="card" style="grid-column: span 2;">
                 <div style="background:var(--bg); padding:15px; border-radius:12px; border:1px solid var(--border);">
@@ -232,6 +273,13 @@
                         <button onclick="msIn('0')">0</button><button onclick="msIn('.')">.</button><button onclick="msIn('+')" style="background:#f59e0b;">+</button>
                     </div>
                 </div>
+            </div>
+            <div class="card">
+                <h3>CGPA Calculator</h3>
+                <input type="number" id="cgpa-val" placeholder="Total SGPA Sum" class="search-input" style="width:100%; margin-bottom:10px;">
+                <input type="number" id="cgpa-sem" placeholder="Number of Semesters" class="search-input" style="width:100%;">
+                <button class="btn-view" onclick="calcCGPA()">Calc CGPA</button>
+                <p id="cgpa-res" style="text-align:center; font-weight:bold; color:var(--primary); margin-top:10px;"></p>
             </div>
             <div class="card"><h3>Percentage</h3><input type="number" id="p-val" placeholder="Marks" class="search-input" style="width:100%; margin-bottom:10px;"><input type="number" id="p-tot" placeholder="Total" class="search-input" style="width:100%;"><button class="btn-view" onclick="cP()">Calc</button><p id="p-res"></p></div>
         </div>
@@ -258,6 +306,8 @@
     window.addItem = () => {
         const item = { 
             type: document.getElementById('item-type').value, 
+            year: document.getElementById('item-year').value,
+            subject: document.getElementById('item-subject').value,
             name: document.getElementById('name-in').value, 
             link: document.getElementById('link-in').value 
         };
@@ -274,31 +324,25 @@
     }
 
     onValue(ref(db, 'resources/'), (snapshot) => {
-        const grids = { note: 'notes-grid', pyq: 'pyq-grid', syllabus: 'syllabus-grid', link: 'links-grid' };
-        Object.values(grids).forEach(id => document.getElementById(id).innerHTML = "");
-
+        window.allData = [];
         snapshot.forEach((child) => {
             const data = child.val();
-            const id = child.key;
-            const card = document.createElement('div');
-            card.className = 'card';
-            const tagClass = data.type === 'link' ? 'tag-link' : '';
-            card.innerHTML = `
-                <div class="delete-btn" id="del-${id}" onclick="deleteItem('${id}')">Delete</div>
-                <span class="tag ${tagClass}">${data.type.toUpperCase()}</span>
-                <h3>${data.name}</h3>
-                <button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`;
-            if(document.getElementById(grids[data.type])) document.getElementById(grids[data.type]).prepend(card);
-            
-            // Re-apply delete visibility if admin mode is on
-            if(window.isAdminMode) document.getElementById(`del-${id}`).style.display = 'block';
+            data.id = child.key;
+            window.allData.push(data);
         });
+        renderLinks();
     });
 </script>
 
 <script>
     let isAdminMode = false, msBuffer = "", timerInterval, timerRunning = false, timeLeft = 1500, secretTapCount = 0;
-    window.isAdminMode = false;
+    let selectedYear = null, selectedSubject = null;
+
+    const subjects1stYear = [
+        "engg. Chemistry", "engg. electronics", "engg. Math-1", "engg. Mechanic", 
+        "engg. Soft skill", "engg.Math-2", "engg.Physics", "engg.electrical", 
+        "engg.pps", "engg.evs"
+    ];
 
     const themes = {
         midnight: { primary: '#818cf8', bg: '#0f172a', card: '#1e293b', side: '#020617', border: '#334155', text: '#f1f5f9' },
@@ -315,163 +359,118 @@
         localStorage.setItem('hub_theme', t);
     }
 
-    function uploadTimeTable(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                localStorage.setItem('student_timetable', e.target.result);
-                displayTimeTable();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
+    function setupSelectors(prefix) {
+        const yearDiv = document.getElementById(`${prefix}-years`);
+        yearDiv.innerHTML = [1,2,3,4].map(y => `<button class="year-btn" onclick="selectYear('${prefix}', ${y})">${y}${y==1?'st':y==2?'nd':y==3?'rd':'th'} Year</button>`).join('');
     }
 
-    function displayTimeTable() {
-        const saved = localStorage.getItem('student_timetable');
-        const box = document.getElementById('tt-display-box');
-        if(saved) { box.innerHTML = `<img src="${saved}" class="tt-img">`; }
+    function selectYear(prefix, year) {
+        selectedYear = year;
+        selectedSubject = null;
+        const subDiv = document.getElementById(`${prefix}-subjects`);
+        subDiv.classList.remove('hidden');
+        const subjects = year == 1 ? subjects1stYear : ["All Subjects"];
+        subDiv.innerHTML = subjects.map(s => `<button class="year-btn" onclick="selectSubject('${prefix}', '${s}')">${s}</button>`).join('');
+        document.getElementById(`${prefix}-grid`).innerHTML = "";
     }
 
-    function logHistory(type, name, pageId = null) {
-        let history = JSON.parse(localStorage.getItem('user_history') || '[]');
-        const entry = { type: type, name: name, pageId: pageId, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
-        history.unshift(entry);
-        if(history.length > 5) history.pop();
-        localStorage.setItem('user_history', JSON.stringify(history));
-        loadHistory();
+    function selectSubject(prefix, subject) {
+        selectedSubject = subject;
+        renderGrid(prefix);
     }
 
-    function loadHistory() {
-        const list = document.getElementById('history-list');
-        const history = JSON.parse(localStorage.getItem('user_history') || '[]');
-        list.innerHTML = history.map(h => `<div class="history-item" onclick="jumpTo('${h.pageId}')">[${h.time}] Opened <b>${h.name}</b></div>`).join('');
+    function renderGrid(prefix) {
+        const gridId = `${prefix}-grid`;
+        const grid = document.getElementById(gridId);
+        grid.innerHTML = "";
+        const typeMap = { 'notes': 'note', 'pyq': 'pyq', 'syllabus': 'syllabus' };
+        const targetType = typeMap[prefix];
+        const filtered = window.allData.filter(item => item.type === targetType && item.year == selectedYear && (selectedYear != 1 || item.subject === selectedSubject));
+        filtered.forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag">${data.subject || 'GENERAL'}</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`;
+            grid.prepend(card);
+        });
     }
 
-    function jumpTo(pageId) {
-        if(!pageId || pageId === 'null') return;
-        const targetBtn = document.getElementById(`btn-${pageId}`);
-        if(targetBtn) nav(pageId, targetBtn, '', false);
+    function renderLinks() {
+        const grid = document.getElementById('links-grid');
+        if(!grid) return;
+        grid.innerHTML = "";
+        window.allData.filter(i => i.type === 'link').forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag tag-link">LINK</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`;
+            grid.prepend(card);
+        });
     }
-
-    function clearHistory() { localStorage.removeItem('user_history'); loadHistory(); }
 
     function nav(id, el, pageName, shouldLog = true) {
         document.querySelectorAll('.main section').forEach(s => s.classList.add('hidden'));
-        const target = document.getElementById(id);
-        if(target) target.classList.remove('hidden');
+        document.getElementById(id).classList.remove('hidden');
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active-btn'));
         if(el) el.classList.add('active-btn');
+        if(id.includes('-page') && id !== 'home-page' && id !== 'calc-page' && id !== 'ai-page' && id !== 'links-page') {
+            const prefix = id.split('-')[0];
+            setupSelectors(prefix);
+            document.getElementById(`${prefix}-subjects`).classList.add('hidden');
+            document.getElementById(`${prefix}-grid`).innerHTML = "";
+        }
         closeSidebar();
         if(shouldLog && pageName) logHistory('Page', pageName, id);
     }
 
-    function uploadPic(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('user-pic').src = e.target.result;
-                localStorage.setItem('student_pic', e.target.result);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
+    function setExamPrompt() {
+        const newDate = prompt("Enter Exam Date & Time (YYYY-MM-DD HH:MM):", localStorage.getItem('exam_date') || "");
+        if(newDate) { localStorage.setItem('exam_date', newDate); }
     }
 
-    function updateUserName() {
-        localStorage.setItem('student_name', document.getElementById('user-name-input').value);
-        setGreeting();
+    function setTimerPrompt() {
+        const mins = prompt("Enter Study Minutes:", timeLeft / 60);
+        if(mins) { timeLeft = parseInt(mins) * 60; updateTimerDisplay(); }
     }
 
-    function setGreeting() {
-        const hour = new Date().getHours();
-        const savedName = localStorage.getItem('student_name') || 'Student';
-        const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]');
-        const pending = tasks.filter(t => !t.done).length;
-        
-        const g = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-        document.getElementById('greeting-text').innerText = `${g}, ${savedName}!`;
-        document.getElementById('task-status').innerText = pending > 0 ? `You have ${pending} tasks remaining for today.` : `All caught up! No pending tasks.`;
+    function calcCGPA() {
+        const sum = document.getElementById('cgpa-val').value;
+        const sems = document.getElementById('cgpa-sem').value;
+        if(sum && sems) { document.getElementById('cgpa-res').innerText = "CGPA: " + (sum/sems).toFixed(2); }
     }
 
+    function uploadTimeTable(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem('student_timetable', e.target.result); displayTimeTable(); }; reader.readAsDataURL(input.files[0]); } }
+    function displayTimeTable() { const saved = localStorage.getItem('student_timetable'); const box = document.getElementById('tt-display-box'); if(saved) { box.innerHTML = `<img src="${saved}" class="tt-img">`; } }
+    function logHistory(type, name, pageId = null) { let history = JSON.parse(localStorage.getItem('user_history') || '[]'); const entry = { type: type, name: name, pageId: pageId, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }; history.unshift(entry); if(history.length > 5) history.pop(); localStorage.setItem('user_history', JSON.stringify(history)); loadHistory(); }
+    function loadHistory() { const list = document.getElementById('history-list'); const history = JSON.parse(localStorage.getItem('user_history') || '[]'); list.innerHTML = history.map(h => `<div class="history-item" onclick="jumpTo('${h.pageId}')">[${h.time}] Opened <b>${h.name}</b></div>`).join(''); }
+    function jumpTo(pageId) { if(!pageId || pageId === 'null') return; const targetBtn = document.getElementById(`btn-${pageId}`); if(targetBtn) nav(pageId, targetBtn, '', false); }
+    function clearHistory() { localStorage.removeItem('user_history'); loadHistory(); }
+    function uploadPic(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('user-pic').src = e.target.result; localStorage.setItem('student_pic', e.target.result); }; reader.readAsDataURL(input.files[0]); } }
+    function updateUserName() { localStorage.setItem('student_name', document.getElementById('user-name-input').value); setGreeting(); }
+    function setGreeting() { const hour = new Date().getHours(); const savedName = localStorage.getItem('student_name') || 'Student'; const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); const pending = tasks.filter(t => !t.done).length; const g = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening"; document.getElementById('greeting-text').innerText = `${g}, ${savedName}!`; document.getElementById('task-status').innerText = pending > 0 ? `You have ${pending} tasks remaining for today.` : `All caught up! No pending tasks.`; }
     function msIn(v) { msBuffer += v; document.getElementById('ms-display').innerText = msBuffer; }
     function msOp(o) { msBuffer += o; document.getElementById('ms-display').innerText = msBuffer; }
     function msAC() { msBuffer = ""; document.getElementById('ms-display').innerText = "0"; }
     function msDel() { msBuffer = msBuffer.slice(0,-1); document.getElementById('ms-display').innerText = msBuffer || "0"; }
     function msRes() { try { let r = eval(msBuffer); document.getElementById('ms-display').innerText = r; msBuffer = r.toString(); } catch { msBuffer = ""; } }
-
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
-    
-    function loadTodos() {
-        const list = document.getElementById('todo-list'); list.innerHTML = '';
-        const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]');
-        tasks.forEach((t, i) => {
-            const li = document.createElement('li'); li.className = `todo-item ${t.done?'done':''}`;
-            li.innerHTML = `<span onclick="toggleTodo(${i})">${t.text}</span><span style="color:var(--pink-accent);cursor:pointer;" onclick="delTodo(${i})">×</span>`;
-            list.appendChild(li);
-        });
-        setGreeting();
-    }
-
-    function addTodo() {
-        const val = document.getElementById('todo-in').value; if(!val) return;
-        let tasks = JSON.parse(localStorage.getItem('student_todos') || '[]');
-        tasks.push({text: val, done: false});
-        localStorage.setItem('student_todos', JSON.stringify(tasks));
-        document.getElementById('todo-in').value = ''; loadTodos();
-    }
-
-    function toggleTodo(i) {
-        let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks[i].done = !tasks[i].done;
-        localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos();
-    }
-
-    function delTodo(i) {
-        let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks.splice(i, 1);
-        localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos();
-    }
-
-    document.getElementById('secret-trigger').addEventListener('click', () => {
-        secretTapCount++; if (secretTapCount === 5) { document.getElementById('admin-box').style.display = 'block'; alert("Admin Panel Enabled"); secretTapCount = 0; }
-        setTimeout(() => { secretTapCount = 0; }, 3000);
-    });
-
+    function loadTodos() { const list = document.getElementById('todo-list'); list.innerHTML = ''; const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); tasks.forEach((t, i) => { const li = document.createElement('li'); li.className = `todo-item ${t.done?'done':''}`; li.innerHTML = `<span onclick="toggleTodo(${i})">${t.text}</span><span style="color:var(--pink-accent);cursor:pointer;" onclick="delTodo(${i})">×</span>`; list.appendChild(li); }); setGreeting(); }
+    function addTodo() { const val = document.getElementById('todo-in').value; if(!val) return; let tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); tasks.push({text: val, done: false}); localStorage.setItem('student_todos', JSON.stringify(tasks)); document.getElementById('todo-in').value = ''; loadTodos(); }
+    function toggleTodo(i) { let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks[i].done = !tasks[i].done; localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos(); }
+    function delTodo(i) { let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks.splice(i, 1); localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos(); }
+    document.getElementById('secret-trigger').addEventListener('click', () => { secretTapCount++; if (secretTapCount === 5) { document.getElementById('admin-box').style.display = 'block'; alert("Admin Panel Enabled"); secretTapCount = 0; } setTimeout(() => { secretTapCount = 0; }, 3000); });
     function unlock() { if(document.getElementById('admin-p').value === "12345") { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('admin-controls').classList.remove('hidden'); } else alert("Wrong Password"); }
-
     function openLink(name, link) { logHistory('Link', name); window.open(link, '_blank'); }
     function toggleDeleteMode() { window.isAdminMode = !window.isAdminMode; document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = window.isAdminMode ? 'block' : 'none'); }
-
-    window.onload = () => {
-        const st = localStorage.getItem('hub_theme'); if(st) setTheme(st);
-        const sn = localStorage.getItem('student_name'); if(sn) document.getElementById('user-name-input').value = sn;
-        const sp = localStorage.getItem('student_pic'); if(sp) document.getElementById('user-pic').src = sp;
-        setGreeting(); loadTodos(); loadHistory(); displayTimeTable();
-        const sd = localStorage.getItem('exam_date'); if(sd) document.getElementById('exam-date-in').value = sd;
-    };
-
-    function updateExamDate() { localStorage.setItem('exam_date', document.getElementById('exam-date-in').value); }
-    setInterval(() => {
-        const target = localStorage.getItem('exam_date'); if (!target) return;
-        const gap = new Date(target).getTime() - new Date().getTime();
-        if (gap > 0) {
-            document.getElementById('days').innerText = Math.floor(gap / 86400000);
-            document.getElementById('hours').innerText = Math.floor((gap % 86400000) / 3600000);
-            document.getElementById('mins').innerText = Math.floor((gap % 3600000) / 60000);
-        }
-    }, 1000);
-
-    function toggleTimer() {
-        const btn = document.getElementById('timer-control');
-        if (timerRunning) { clearInterval(timerInterval); btn.innerText = "Start"; } else {
-            timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Time's Up!"); resetTimer(); } }, 1000);
-            btn.innerText = "Pause";
-        }
-        timerRunning = !timerRunning;
-    }
+    window.onload = () => { const st = localStorage.getItem('hub_theme'); if(st) setTheme(st); const sn = localStorage.getItem('student_name'); if(sn) document.getElementById('user-name-input').value = sn; const sp = localStorage.getItem('student_pic'); if(sp) document.getElementById('user-pic').src = sp; setGreeting(); loadTodos(); loadHistory(); displayTimeTable(); };
+    setInterval(() => { const target = localStorage.getItem('exam_date'); if (!target) return; const gap = new Date(target).getTime() - new Date().getTime(); if (gap > 0) { document.getElementById('days').innerText = Math.floor(gap / 86400000); document.getElementById('hours').innerText = Math.floor((gap % 86400000) / 3600000); document.getElementById('mins').innerText = Math.floor((gap % 3600000) / 60000); } }, 1000);
+    function toggleTimer() { const btn = document.getElementById('timer-control'); if (timerRunning) { clearInterval(timerInterval); btn.innerText = "Start"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Time's Up!"); resetTimer(); } }, 1000); btn.innerText = "Pause"; } timerRunning = !timerRunning; }
     function resetTimer() { clearInterval(timerInterval); timeLeft = 1500; timerRunning = false; updateTimerDisplay(); document.getElementById('timer-control').innerText = "Start"; }
     function updateTimerDisplay() { const m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`; }
     function cP() { let v = document.getElementById('p-val').value, t = document.getElementById('p-tot').value; document.getElementById('p-res').innerText = ((v/t)*100).toFixed(2) + "%"; }
     function aiSolve() { const r = document.getElementById('ai-res'); r.style.display = "block"; r.innerText = "Analyzing..."; setTimeout(() => { r.innerHTML = "<b>AI:</b> Analysis Complete."; }, 800); }
-    function filterCards(gridId, input) { let val = input.value.toLowerCase(); document.querySelectorAll(`#${gridId} .card`).forEach(c => { c.style.display = c.innerText.toLowerCase().includes(val) ? "block" : "none"; }); }
 </script>
 </body>
 </html>
+
+
+    
