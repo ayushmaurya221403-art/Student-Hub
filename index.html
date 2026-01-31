@@ -23,8 +23,36 @@
 
         .creator-tag { position: fixed; top: 20px; right: 20px; font-weight: 600; color: #fff; background: var(--card-bg); padding: 8px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; font-size: 13px; border: 1px solid var(--border); cursor: pointer; user-select: none; }
 
-        .menu-toggle { position: fixed; top: 20px; left: 20px; z-index: 1000; cursor: pointer; background: var(--sidebar-bg); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--border); }
+        /* Blinking Menu Toggle */
+        @keyframes slowBlink {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .menu-toggle { 
+            position: fixed; top: 20px; left: 20px; z-index: 1000; cursor: pointer; 
+            background: var(--sidebar-bg); padding: 10px; border-radius: 8px; 
+            display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--border);
+            animation: slowBlink 2s infinite ease-in-out;
+        }
         .menu-toggle span { width: 25px; height: 3px; background: white; border-radius: 2px; }
+
+        /* Floating Bubble Style */
+        .nav-bubble {
+            position: fixed; top: 70px; left: 25px; background: var(--primary);
+            color: white; padding: 8px 15px; border-radius: 12px; font-size: 12px;
+            font-weight: 600; z-index: 1001; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            pointer-events: none; animation: float 3s infinite ease-in-out;
+        }
+        .nav-bubble::after {
+            content: ''; position: absolute; top: -8px; left: 15px;
+            border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--primary);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
 
         .sidebar { width: 320px; background: var(--sidebar-bg); color: white; padding: 25px 15px; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; position: fixed; height: 100%; left: -320px; z-index: 999; border-right: 1px solid var(--border); }
         .sidebar.active { left: 0; }
@@ -100,9 +128,11 @@
 
 <div class="creator-tag" id="secret-trigger">Made by Ayush Maurya</div>
 
-<div class="menu-toggle" onclick="toggleSidebar()">
+<div class="menu-toggle" id="menu-toggle-btn" onclick="toggleSidebar()">
     <span></span><span></span><span></span>
 </div>
+
+<div class="nav-bubble" id="nav-bubble">click here to see more option</div>
 
 <div class="sidebar" id="sidebar">
     <div class="user-profile">
@@ -181,7 +211,6 @@
             <div class="brand-logo">🎓</div>
             <div class="brand-name">Student-Hub</div>
         </div>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-align: left;">click on three line to see more options!</p>
 
         <div class="home-card">
             <h1 id="greeting-text">Welcome back!</h1>
@@ -341,6 +370,17 @@
     function selectSubject(prefix, subject) { selectedSubject = subject; renderGrid(prefix); }
     function renderGrid(prefix) { const gridId = `${prefix}-grid`; const grid = document.getElementById(gridId); grid.innerHTML = ""; const typeMap = { 'notes': 'note', 'pyq': 'pyq', 'syllabus': 'syllabus' }; const targetType = typeMap[prefix]; const filtered = window.allData.filter(item => item.type === targetType && item.year == selectedYear && (selectedYear != 1 || item.subject === selectedSubject)); filtered.forEach(data => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag">${data.subject || 'GENERAL'}</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`; grid.prepend(card); }); }
     function renderLinks() { const grid = document.getElementById('links-grid'); if(!grid) return; grid.innerHTML = ""; window.allData.filter(i => i.type === 'link').forEach(data => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag tag-link">LINK</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`; grid.prepend(card); }); }
+    
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('active');
+        // Hide bubble and stop blinking once used
+        const bubble = document.getElementById('nav-bubble');
+        const menuBtn = document.getElementById('menu-toggle-btn');
+        if(bubble) bubble.style.display = 'none';
+        if(menuBtn) menuBtn.style.animation = 'none';
+        localStorage.setItem('nav_clicked', 'true');
+    }
+
     function nav(id, el, pageName, shouldLog = true) { document.querySelectorAll('.main section').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active-btn')); if(el) el.classList.add('active-btn'); if(id.includes('-page') && id !== 'home-page' && id !== 'calc-page' && id !== 'ai-page' && id !== 'links-page') { const prefix = id.split('-')[0]; setupSelectors(prefix); document.getElementById(`${prefix}-subjects`).classList.add('hidden'); document.getElementById(`${prefix}-grid`).innerHTML = ""; } closeSidebar(); if(shouldLog && pageName) logHistory('Page', pageName, id); }
     function setExamPrompt() { const newDate = prompt("Enter Exam Date & Time (YYYY-MM-DD HH:MM):", localStorage.getItem('exam_date') || ""); if(newDate) { localStorage.setItem('exam_date', newDate); } }
     function setTimerPrompt() { const mins = prompt("Enter Study Minutes:", timeLeft / 60); if(mins) { timeLeft = parseInt(mins) * 60; updateTimerDisplay(); } }
@@ -359,7 +399,6 @@
     function msAC() { msBuffer = ""; document.getElementById('ms-display').innerText = "0"; }
     function msDel() { msBuffer = msBuffer.slice(0,-1); document.getElementById('ms-display').innerText = msBuffer || "0"; }
     function msRes() { try { let r = eval(msBuffer); document.getElementById('ms-display').innerText = r; msBuffer = r.toString(); } catch { msBuffer = ""; } }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
     function loadTodos() { const list = document.getElementById('todo-list'); list.innerHTML = ''; const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); tasks.forEach((t, i) => { const li = document.createElement('li'); li.className = `todo-item ${t.done?'done':''}`; li.innerHTML = `<span onclick="toggleTodo(${i})">${t.text}</span><span style="color:var(--pink-accent);cursor:pointer;" onclick="delTodo(${i})">×</span>`; list.appendChild(li); }); setGreeting(); }
     function addTodo() { const val = document.getElementById('todo-in').value; if(!val) return; let tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); tasks.push({text: val, done: false}); localStorage.setItem('student_todos', JSON.stringify(tasks)); document.getElementById('todo-in').value = ''; loadTodos(); }
@@ -369,7 +408,21 @@
     function unlock() { if(document.getElementById('admin-p').value === "12345") { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('admin-controls').classList.remove('hidden'); } else alert("Wrong Password"); }
     function openLink(name, link) { logHistory('Link', name); window.open(link, '_blank'); }
     function toggleDeleteMode() { window.isAdminMode = !window.isAdminMode; document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = window.isAdminMode ? 'block' : 'none'); }
-    window.onload = () => { const st = localStorage.getItem('hub_theme'); if(st) setTheme(st); const sn = localStorage.getItem('student_name'); if(sn) document.getElementById('user-name-input').value = sn; const sp = localStorage.getItem('student_pic'); if(sp) document.getElementById('user-pic').src = sp; setGreeting(); loadTodos(); loadHistory(); displayTimeTable(); };
+    
+    window.onload = () => { 
+        const st = localStorage.getItem('hub_theme'); if(st) setTheme(st); 
+        const sn = localStorage.getItem('student_name'); if(sn) document.getElementById('user-name-input').value = sn; 
+        const sp = localStorage.getItem('student_pic'); if(sp) document.getElementById('user-pic').src = sp; 
+        
+        // Handle tutorial bubble persistence
+        if(localStorage.getItem('nav_clicked')) {
+            document.getElementById('nav-bubble').style.display = 'none';
+            document.getElementById('menu-toggle-btn').style.animation = 'none';
+        }
+
+        setGreeting(); loadTodos(); loadHistory(); displayTimeTable(); 
+    };
+    
     setInterval(() => { const target = localStorage.getItem('exam_date'); if (!target) return; const gap = new Date(target).getTime() - new Date().getTime(); if (gap > 0) { document.getElementById('days').innerText = Math.floor(gap / 86400000); document.getElementById('hours').innerText = Math.floor((gap % 86400000) / 3600000); document.getElementById('mins').innerText = Math.floor((gap % 3600000) / 60000); } }, 1000);
     function toggleTimer() { const btn = document.getElementById('timer-control'); if (timerRunning) { clearInterval(timerInterval); btn.innerText = "Start"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Time's Up!"); resetTimer(); } }, 1000); btn.innerText = "Pause"; } timerRunning = !timerRunning; }
     function resetTimer() { clearInterval(timerInterval); timeLeft = 1500; timerRunning = false; updateTimerDisplay(); document.getElementById('timer-control').innerText = "Start"; }
