@@ -16,14 +16,12 @@
         * { box-sizing: border-box; transition: all 0.3s ease; font-family: 'Inter', sans-serif; }
         body { margin: 0; display: flex; background: var(--bg); color: #f1f5f9; height: 100vh; overflow: hidden; }
         
-        /* Brand Header Styles */
         .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
         .brand-logo { width: 40px; height: 40px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .brand-name { font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 600; color: white; letter-spacing: 0.5px; }
 
         .creator-tag { position: fixed; top: 20px; right: 20px; font-weight: 600; color: #fff; background: var(--card-bg); padding: 8px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; font-size: 13px; border: 1px solid var(--border); cursor: pointer; user-select: none; }
 
-        /* Blinking Menu Toggle */
         @keyframes slowBlink {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.05); }
@@ -37,7 +35,6 @@
         }
         .menu-toggle span { width: 25px; height: 3px; background: white; border-radius: 2px; }
 
-        /* Floating Bubble Style */
         .nav-bubble {
             position: fixed; top: 70px; left: 25px; background: var(--primary);
             color: white; padding: 8px 15px; border-radius: 12px; font-size: 12px;
@@ -102,10 +99,10 @@
         .todo-item.done { opacity: 0.5; text-decoration: line-through; }
 
         .home-card { background: linear-gradient(135deg, var(--primary) 0%, var(--pink-accent) 100%); color: white; padding: 30px; border-radius: 24px; margin-bottom: 25px; }
-        .btn-contact { display: inline-block; padding: 12px 25px; background: #f8fafc; color: #0f172a; text-decoration: none; border-radius: 12px; font-weight: 600; margin-top: 10px; }
 
         .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 15px; }
         .tag-link { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
+        .tag-secret { background: rgba(244, 114, 182, 0.2); color: var(--pink-accent); }
         .btn-view { display: block; width: 100%; text-align: center; padding: 12px; background: var(--primary); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; margin-top: 15px; cursor: pointer; border: none;}
         .delete-btn { position: absolute; top: 15px; right: 15px; color: #f87171; cursor: pointer; font-size: 12px; font-weight: bold; display: none; }
 
@@ -118,7 +115,6 @@
         .calc-grid button { padding: 12px 5px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; cursor: pointer; }
         .calc-grid button:hover { background: var(--primary); }
 
-        /* New Year/Subject Styles */
         .year-selector, .subject-selector { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         .year-btn { padding: 8px 15px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: white; font-size: 12px; }
         .year-btn.active { background: var(--primary); border-color: var(--primary); }
@@ -126,7 +122,7 @@
 </head>
 <body>
 
-<div class="creator-tag" id="secret-trigger">Made by Ayush Maurya</div>
+<div class="creator-tag" id="secret-trigger">Important Material</div>
 
 <div class="menu-toggle" id="menu-toggle-btn" onclick="toggleSidebar()">
     <span></span><span></span><span></span>
@@ -151,6 +147,7 @@
         <div class="sidebar-btn" id="btn-pyq-page" onclick="nav('pyq-page', this, 'PYQ Papers')">📄 PYQ Papers</div>
         <div class="sidebar-btn" id="btn-syllabus-page" onclick="nav('syllabus-page', this, 'Syllabus')">📋 Syllabus</div>
         <div class="sidebar-btn" id="btn-links-page" onclick="nav('links-page', this, 'Important Links')">🔗 Important Links</div>
+        <div class="sidebar-btn hidden" id="btn-study-material-page" onclick="nav('study-material-page', this, 'Study Material')">⭐ Study Material</div>
         <div class="sidebar-btn" id="btn-ai-page" onclick="nav('ai-page', this, 'AI Solver')">🤖 AI Solver</div>
         <div class="sidebar-btn" id="btn-calc-page" onclick="nav('calc-page', this, 'Calculators')">⚙️ Calculators</div>
     </div>
@@ -164,7 +161,7 @@
     </div>
 
     <div class="admin-sidebar" id="admin-box">
-        <h4>🛠 Ayush's Work</h4>
+        <h4>🛠 Admin Panel</h4>
         <div id="lock-screen">
             <input type="password" id="admin-p" placeholder="Password">
             <button class="admin-btn" onclick="unlock()" style="background:var(--pink-accent); color:white;">Unlock</button>
@@ -175,6 +172,7 @@
                 <option value="pyq">PYQ Paper</option>
                 <option value="syllabus">Syllabus</option>
                 <option value="link">Important Link</option>
+                <option value="study-material">Study Material Link</option>
             </select>
 
             <select id="item-year">
@@ -215,7 +213,6 @@
         <div class="home-card">
             <h1 id="greeting-text">Welcome back!</h1>
             <p id="task-status">Loading your tasks...</p>
-            <a href="mailto:ayushmaurya221403@gmail.com" class="btn-contact">📧 Contact Ayush Maurya</a>
         </div>
 
         <div class="widget-row">
@@ -261,21 +258,18 @@
                 <div class="theme-dot" style="background:#f1f5f9; border:1px solid #cbd5e1;" onclick="setTheme('light')"></div>
             </div>
         </div>
-
-        <footer style="margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); text-align: center;">
-            <p style="color: var(--text-muted); font-size: 13px; margin: 0;">
-                Created by <b>Ayush Maurya</b> | 
-                <a href="https://dcic.pidesk.in/codecraft" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
-                    @DCIC-CodeCraft_2k26
-                </a>
-            </p>
-        </footer>
     </section>
 
     <section id="notes-page" class="hidden"><h1>Study Notes</h1><div class="year-selector" id="notes-years"></div><div class="subject-selector hidden" id="notes-subjects"></div><div class="grid" id="notes-grid"></div></section>
     <section id="pyq-page" class="hidden"><h1>PYQ Papers</h1><div class="year-selector" id="pyq-years"></div><div class="subject-selector hidden" id="pyq-subjects"></div><div class="grid" id="pyq-grid"></div></section>
     <section id="syllabus-page" class="hidden"><h1>Syllabus</h1><div class="year-selector" id="syllabus-years"></div><div class="subject-selector hidden" id="syllabus-subjects"></div><div class="grid" id="syllabus-grid"></div></section>
     <section id="links-page" class="hidden"><div class="header-row"><h1>Important Links</h1><input type="text" class="search-input" onkeyup="filterCards('links-grid', this)" placeholder="Search..."></div><div class="grid" id="links-grid"></div></section>
+    
+    <section id="study-material-page" class="hidden">
+        <h1>Study Material</h1>
+        <div class="grid" id="study-material-grid"></div>
+    </section>
+
     <section id="ai-page" class="hidden"><h1>AI Solver</h1><div class="card"><textarea id="ai-q" style="width:100%; height:150px; padding:15px; border-radius:10px; border:1px solid var(--border); background:rgba(0,0,0,0.2); color:white;" placeholder="Ask me..."></textarea><button class="btn-view" onclick="aiSolve()">Solve</button><div id="ai-res" style="margin-top:20px; padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; display:none; border:1px solid var(--border);"></div></div></section>
     <section id="calc-page" class="hidden">
         <h1>Calculators</h1>
@@ -349,12 +343,13 @@
         });
     }
 
-    window.deleteItem = (id) => { if(confirm("Delete this for everyone?")) remove(ref(db, 'resources/' + id)); }
+    window.deleteItem = (id) => { if(confirm("Delete this?")) remove(ref(db, 'resources/' + id)); }
 
     onValue(ref(db, 'resources/'), (snapshot) => {
         window.allData = [];
         snapshot.forEach((child) => { const data = child.val(); data.id = child.key; window.allData.push(data); });
         renderLinks();
+        renderStudyMaterial();
     });
 </script>
 
@@ -369,11 +364,33 @@
     function selectYear(prefix, year) { selectedYear = year; selectedSubject = null; const subDiv = document.getElementById(`${prefix}-subjects`); subDiv.classList.remove('hidden'); const subjects = year == 1 ? subjects1stYear : ["All Subjects"]; subDiv.innerHTML = subjects.map(s => `<button class="year-btn" onclick="selectSubject('${prefix}', '${s}')">${s}</button>`).join(''); document.getElementById(`${prefix}-grid`).innerHTML = ""; }
     function selectSubject(prefix, subject) { selectedSubject = subject; renderGrid(prefix); }
     function renderGrid(prefix) { const gridId = `${prefix}-grid`; const grid = document.getElementById(gridId); grid.innerHTML = ""; const typeMap = { 'notes': 'note', 'pyq': 'pyq', 'syllabus': 'syllabus' }; const targetType = typeMap[prefix]; const filtered = window.allData.filter(item => item.type === targetType && item.year == selectedYear && (selectedYear != 1 || item.subject === selectedSubject)); filtered.forEach(data => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag">${data.subject || 'GENERAL'}</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`; grid.prepend(card); }); }
-    function renderLinks() { const grid = document.getElementById('links-grid'); if(!grid) return; grid.innerHTML = ""; window.allData.filter(i => i.type === 'link').forEach(data => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag tag-link">LINK</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`; grid.prepend(card); }); }
+    
+    function renderLinks() { 
+        const grid = document.getElementById('links-grid'); 
+        if(!grid) return; 
+        grid.innerHTML = ""; 
+        window.allData.filter(i => i.type === 'link').forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag tag-link">LINK</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Visit Link</button>`;
+            grid.prepend(card);
+        });
+    }
+
+    function renderStudyMaterial() {
+        const grid = document.getElementById('study-material-grid');
+        if(!grid) return;
+        grid.innerHTML = "";
+        window.allData.filter(i => i.type === 'study-material').forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="delete-btn" id="del-${data.id}" style="display:${window.isAdminMode?'block':'none'}" onclick="deleteItem('${data.id}')">Delete</div><span class="tag tag-secret">MATERIAL</span><h3>${data.name}</h3><button onclick="openLink('${data.name}', '${data.link}')" class="btn-view">Access Material</button>`;
+            grid.prepend(card);
+        });
+    }
     
     function toggleSidebar() { 
         document.getElementById('sidebar').classList.toggle('active');
-        // Hide bubble and stop blinking once used
         const bubble = document.getElementById('nav-bubble');
         const menuBtn = document.getElementById('menu-toggle-btn');
         if(bubble) bubble.style.display = 'none';
@@ -381,19 +398,32 @@
         localStorage.setItem('nav_clicked', 'true');
     }
 
-    function nav(id, el, pageName, shouldLog = true) { document.querySelectorAll('.main section').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active-btn')); if(el) el.classList.add('active-btn'); if(id.includes('-page') && id !== 'home-page' && id !== 'calc-page' && id !== 'ai-page' && id !== 'links-page') { const prefix = id.split('-')[0]; setupSelectors(prefix); document.getElementById(`${prefix}-subjects`).classList.add('hidden'); document.getElementById(`${prefix}-grid`).innerHTML = ""; } closeSidebar(); if(shouldLog && pageName) logHistory('Page', pageName, id); }
-    function setExamPrompt() { const newDate = prompt("Enter Exam Date & Time (YYYY-MM-DD HH:MM):", localStorage.getItem('exam_date') || ""); if(newDate) { localStorage.setItem('exam_date', newDate); } }
+    function nav(id, el, pageName, shouldLog = true) { 
+        document.querySelectorAll('.main section').forEach(s => s.classList.add('hidden')); 
+        document.getElementById(id).classList.remove('hidden'); 
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active-btn')); 
+        if(el) el.classList.add('active-btn'); 
+        if(id.includes('-page') && !['home-page', 'calc-page', 'ai-page', 'links-page', 'study-material-page'].includes(id)) { 
+            const prefix = id.split('-')[0]; setupSelectors(prefix); 
+            document.getElementById(`${prefix}-subjects`).classList.add('hidden'); 
+            document.getElementById(`${prefix}-grid`).innerHTML = ""; 
+        } 
+        closeSidebar(); 
+        if(shouldLog && pageName) logHistory('Page', pageName, id); 
+    }
+
+    function setExamPrompt() { const newDate = prompt("Enter Exam Date (YYYY-MM-DD HH:MM):", localStorage.getItem('exam_date') || ""); if(newDate) localStorage.setItem('exam_date', newDate); }
     function setTimerPrompt() { const mins = prompt("Enter Study Minutes:", timeLeft / 60); if(mins) { timeLeft = parseInt(mins) * 60; updateTimerDisplay(); } }
-    function calcCGPA() { const sum = document.getElementById('cgpa-val').value; const sems = document.getElementById('cgpa-sem').value; if(sum && sems) { document.getElementById('cgpa-res').innerText = "CGPA: " + (sum/sems).toFixed(2); } }
+    function calcCGPA() { const sum = document.getElementById('cgpa-val').value; const sems = document.getElementById('cgpa-sem').value; if(sum && sems) document.getElementById('cgpa-res').innerText = "CGPA: " + (sum/sems).toFixed(2); }
     function uploadTimeTable(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem('student_timetable', e.target.result); displayTimeTable(); }; reader.readAsDataURL(input.files[0]); } }
-    function displayTimeTable() { const saved = localStorage.getItem('student_timetable'); const box = document.getElementById('tt-display-box'); if(saved) { box.innerHTML = `<img src="${saved}" class="tt-img">`; } }
+    function displayTimeTable() { const saved = localStorage.getItem('student_timetable'); const box = document.getElementById('tt-display-box'); if(saved) box.innerHTML = `<img src="${saved}" class="tt-img">`; }
     function logHistory(type, name, pageId = null) { let history = JSON.parse(localStorage.getItem('user_history') || '[]'); const entry = { type: type, name: name, pageId: pageId, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }; history.unshift(entry); if(history.length > 5) history.pop(); localStorage.setItem('user_history', JSON.stringify(history)); loadHistory(); }
     function loadHistory() { const list = document.getElementById('history-list'); const history = JSON.parse(localStorage.getItem('user_history') || '[]'); list.innerHTML = history.map(h => `<div class="history-item" onclick="jumpTo('${h.pageId}')">[${h.time}] Opened <b>${h.name}</b></div>`).join(''); }
     function jumpTo(pageId) { if(!pageId || pageId === 'null') return; const targetBtn = document.getElementById(`btn-${pageId}`); if(targetBtn) nav(pageId, targetBtn, '', false); }
     function clearHistory() { localStorage.removeItem('user_history'); loadHistory(); }
     function uploadPic(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('user-pic').src = e.target.result; localStorage.setItem('student_pic', e.target.result); }; reader.readAsDataURL(input.files[0]); } }
     function updateUserName() { localStorage.setItem('student_name', document.getElementById('user-name-input').value); setGreeting(); }
-    function setGreeting() { const hour = new Date().getHours(); const savedName = localStorage.getItem('student_name') || 'Student'; const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); const pending = tasks.filter(t => !t.done).length; const g = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening"; document.getElementById('greeting-text').innerText = `${g}, ${savedName}!`; document.getElementById('task-status').innerText = pending > 0 ? `You have ${pending} tasks remaining for today.` : `All caught up! No pending tasks.`; }
+    function setGreeting() { const hour = new Date().getHours(); const savedName = localStorage.getItem('student_name') || 'Student'; const tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); const pending = tasks.filter(t => !t.done).length; const g = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening"; document.getElementById('greeting-text').innerText = `${g}, ${savedName}!`; document.getElementById('task-status').innerText = pending > 0 ? `You have ${pending} tasks remaining.` : `All caught up!`; }
     function msIn(v) { msBuffer += v; document.getElementById('ms-display').innerText = msBuffer; }
     function msOp(o) { msBuffer += o; document.getElementById('ms-display').innerText = msBuffer; }
     function msAC() { msBuffer = ""; document.getElementById('ms-display').innerText = "0"; }
@@ -404,7 +434,28 @@
     function addTodo() { const val = document.getElementById('todo-in').value; if(!val) return; let tasks = JSON.parse(localStorage.getItem('student_todos') || '[]'); tasks.push({text: val, done: false}); localStorage.setItem('student_todos', JSON.stringify(tasks)); document.getElementById('todo-in').value = ''; loadTodos(); }
     function toggleTodo(i) { let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks[i].done = !tasks[i].done; localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos(); }
     function delTodo(i) { let tasks = JSON.parse(localStorage.getItem('student_todos')); tasks.splice(i, 1); localStorage.setItem('student_todos', JSON.stringify(tasks)); loadTodos(); }
-    document.getElementById('secret-trigger').addEventListener('click', () => { secretTapCount++; if (secretTapCount === 5) { document.getElementById('admin-box').style.display = 'block'; alert("Admin Panel Enabled"); secretTapCount = 0; } setTimeout(() => { secretTapCount = 0; }, 3000); });
+
+    // Multi-tap Logic
+    document.getElementById('secret-trigger').addEventListener('click', () => { 
+        secretTapCount++; 
+        if (secretTapCount === 7) { 
+            const pass = prompt("Enter Password for Study Material:");
+            if (pass === "6969") {
+                const smBtn = document.getElementById('btn-study-material-page');
+                smBtn.classList.remove('hidden');
+                nav('study-material-page', smBtn, 'Study Material');
+                alert("Study Material Unlocked!");
+            } else {
+                alert("Incorrect Password!");
+            }
+        } else if (secretTapCount === 10) {
+            document.getElementById('admin-box').style.display = 'block'; 
+            alert("Admin Panel Enabled"); 
+            secretTapCount = 0;
+        }
+        setTimeout(() => { if(secretTapCount < 7) secretTapCount = 0; }, 3000); 
+    });
+
     function unlock() { if(document.getElementById('admin-p').value === "12345") { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('admin-controls').classList.remove('hidden'); } else alert("Wrong Password"); }
     function openLink(name, link) { logHistory('Link', name); window.open(link, '_blank'); }
     function toggleDeleteMode() { window.isAdminMode = !window.isAdminMode; document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = window.isAdminMode ? 'block' : 'none'); }
@@ -413,13 +464,10 @@
         const st = localStorage.getItem('hub_theme'); if(st) setTheme(st); 
         const sn = localStorage.getItem('student_name'); if(sn) document.getElementById('user-name-input').value = sn; 
         const sp = localStorage.getItem('student_pic'); if(sp) document.getElementById('user-pic').src = sp; 
-        
-        // Handle tutorial bubble persistence
         if(localStorage.getItem('nav_clicked')) {
             document.getElementById('nav-bubble').style.display = 'none';
             document.getElementById('menu-toggle-btn').style.animation = 'none';
         }
-
         setGreeting(); loadTodos(); loadHistory(); displayTimeTable(); 
     };
     
